@@ -5,11 +5,11 @@
     "password": "yourname",
     "genres": [],
     "myList": [
-      3,
       2
     ],
     "skippedBooks": [
-      1
+      1,
+      3
     ]
   },
   {
