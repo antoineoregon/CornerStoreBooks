@@ -1,5 +1,5 @@
 /**
- * LOGIN FUNCTION
+ * Authenticate user and redirect to the home page
  */
 async function loginUser(username, password) {
     try {
@@ -14,6 +14,7 @@ async function loginUser(username, password) {
         if (data.success) {
             localStorage.setItem('userId', data.user.id); 
             
+            // Redirect logic based on current directory
             const path = window.location.pathname;
             if (path.includes('index.html') || path === '/' || !path.includes('/pages/')) {
                 window.location.href = 'pages/home.html';
@@ -25,12 +26,12 @@ async function loginUser(username, password) {
         }
     } catch (error) {
         console.error("Login Error:", error);
-        alert("Could not connect to the server. Is your backend running on port 3000?");
+        alert("Could not connect to the server. Please ensure the backend is running.");
     }
 }
 
 /**
- * SIGN-UP FUNCTION
+ * Register a new user and log them in automatically
  */
 async function signUpUser(username, password, genres) {
     try {
@@ -43,34 +44,28 @@ async function signUpUser(username, password, genres) {
         const data = await response.json();
 
         if (data.success && data.user) {
-            // 1. Log the user in automatically
             localStorage.setItem('userId', data.user.id);
             localStorage.setItem('username', data.user.username);
 
             alert(`Welcome, ${data.user.username}! Your account has been created.`);
 
-            // 2. Intelligent Redirect Logic (IH4 Consistency)
-            // This checks if you are inside the /pages/ folder or at the root
             const path = window.location.pathname;
             if (path.includes('index.html') || path === '/' || !path.includes('/pages/')) {
                 window.location.href = 'pages/home.html';
             } else {
-                // If already in /pages/signup.html, just go to home.html
                 window.location.href = 'home.html';
             }
         } else {
-            // IH2: Descriptive error message
             alert("Sign up failed: " + (data.message || "Please check your details and try again."));
         }
     } catch (error) {
         console.error("Sign up error:", error);
-        // IH2: Helpful recovery path
-        alert("Connection error. Is your server running on port 3000?");
+        alert("Connection error. Please check your server status.");
     }
 }
 
 /**
- * DISPLAY BOOKS FUNCTION (Home Page)
+ * Fetch and display the book catalog, excluding skipped books
  */
 async function displayBooks() {
     const grid = document.querySelector('.book-grid');
@@ -92,10 +87,8 @@ async function displayBooks() {
             const card = document.createElement('div');
             card.className = 'book-card';
             
-            // --- IH7: Step 2 - Adding the alternative approach (Double-Click) ---
+            // Allow double-click as a shortcut to add to list
             card.ondblclick = () => addToList(book.id);
-            
-            // ------------------------------------------------------------------
 
             card.innerHTML = `
                 <h3>${book.title}</h3>
@@ -105,11 +98,11 @@ async function displayBooks() {
             `;
             grid.appendChild(card);
         });
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error("Error displaying books:", e); }
 }
 
 /**
- * ADD TO LIST FUNCTION
+ * Add a specific book to the user's saved list
  */
 async function addToList(bookId) {
     const userId = localStorage.getItem('userId');
@@ -129,8 +122,7 @@ async function addToList(bookId) {
 
         const data = await response.json();
         if (data.success) {
-            // IH#1: Clear feedback that the item was moved to their list
-            alert("Success! This book has been added to your list. View it in the 'My List' tab.");
+            alert("Success! This book has been added to your list.");
         } else {
             alert("Note: " + data.message);
         }
@@ -140,7 +132,7 @@ async function addToList(bookId) {
 }
 
 /**
- * DISPLAY MY LIST (Settings/My List Page)
+ * Display only the books saved by the current user
  */
 async function displayMyList() {
     const grid = document.getElementById('my-saved-books') || document.querySelector('.book-grid');
@@ -149,12 +141,10 @@ async function displayMyList() {
     if (!grid || !userId) return;
 
     try {
-        // 1. Get User Data to see their saved IDs
         const userResp = await fetch(`http://localhost:3000/user/${userId}`);
         const userData = await userResp.json();
         const savedIds = userData.myList || [];
 
-        // 2. Get All Books Catalog
         const bookResp = await fetch('http://localhost:3000/books');
         const allBooks = await bookResp.json();
 
@@ -165,7 +155,6 @@ async function displayMyList() {
             return;
         }
 
-        // 3. Filter catalog to show only saved books
         const myBooks = allBooks.filter(book => savedIds.includes(book.id));
 
         myBooks.forEach(book => {
@@ -185,15 +174,11 @@ async function displayMyList() {
 }
 
 /**
- *Skip Book Function
+ * Hide a book from the user's view permanently
  */
 async function skipBook(bookId) {
-    // IH#2: Warning the user of the consequence and providing a recovery path
     const confirmSkip = confirm("Are you sure you want to skip this book? It will be hidden from your account.");
-
-    if (!confirmSkip) {
-        return; // User cancelled, do nothing
-    }
+    if (!confirmSkip) return;
 
     const userId = localStorage.getItem('userId');
     try {
@@ -205,23 +190,19 @@ async function skipBook(bookId) {
         
         const data = await response.json();
         if (data.success) {
-            // Re-render the grid to remove the book
             displayBooks(); 
         }
     } catch (error) {
         console.error("Skip Error:", error);
-        alert("We couldn't hide the book right now. Please check your connection.");
+        alert("Could not hide the book at this time.");
     }
 }
 
 /**
- * Remove Book From List
- * 
+ * Remove a book from the user's saved list
  */
 async function removeFromList(bookId) {
     const userId = localStorage.getItem('userId');
-    
-    // IH2: Confirmation for a clear recovery path
     const confirmed = confirm("Are you sure you want to remove this book from your list?");
     if (!confirmed) return;
 
@@ -234,31 +215,27 @@ async function removeFromList(bookId) {
 
         const data = await response.json();
         if (data.success) {
-            // Refresh the display immediately
             displayMyList();
         } else {
             alert("Could not remove the book: " + data.message);
         }
     } catch (error) {
         console.error("Remove error:", error);
-        // IH2: Helpful error message
-        alert("We’re having trouble connecting to the server. Please try again later.");
+        alert("Connection error. Please try again later.");
     }
 }
 
 /**
- * DELETE ACCOUNT FUNCTION
+ * Permanently delete the user account and clear local storage
  */
 async function deleteAccount() {
     const userId = localStorage.getItem('userId');
     if (!userId) return;
 
-    // 1. Confirm with the user
-    const confirmed = confirm("By deleting your account you will lose access to your list and saved preferences permanently.");
+    const confirmed = confirm("Are you sure? You will lose access to your list and preferences permanently.");
     
     if (confirmed) {
         try {
-            // 2. Send the DELETE request to the User Service
             const response = await fetch(`http://localhost:3000/delete-account/${userId}`, {
                 method: 'DELETE'
             });
@@ -267,8 +244,7 @@ async function deleteAccount() {
 
             if (data.success) {
                 alert("Your account has been deleted.");
-                // 3. Clear local storage and send them back to the login page
-                localStorage.removeItem('userId');
+                localStorage.clear();
                 window.location.href = '../index.html';
             } else {
                 alert("Failed to delete account: " + data.message);
@@ -281,22 +257,20 @@ async function deleteAccount() {
 }
 
 /**
- * PAGE ROUTER / INITIALIZATION
+ * Initialize page content based on URL path
  */
-console.log("Script execution started...");
-
 window.onload = () => {
     const path = window.location.pathname.toLowerCase();
-    console.log("Path detected:", path);
-    
     if (path.includes('home')) {
         displayBooks();
-    } else if (path.includes('mylist')) { // Changed from 'settings'
+    } else if (path.includes('mylist')) {
         displayMyList();
     }
 };
 
-// Also ensure you have a logout function in app.js if not already there
+/**
+ * Clear session data and redirect to login
+ */
 function logout() {
     localStorage.removeItem('userId');
     window.location.replace('../index.html');

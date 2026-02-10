@@ -1,20 +1,19 @@
 const express = require('express');
 const fs = require('fs');
 const cors = require('cors'); 
-const app = express();
 const path = require('path');
 
+const app = express();
 app.use(express.json());
 app.use(cors());
 
 const DATA_FILE = './users.json';
 
-// HELPER FUNCTION: Safely load users as an array
+// Load user data from the local JSON file
 const loadUsers = () => {
     try {
         if (!fs.existsSync(DATA_FILE)) return [];
         const data = fs.readFileSync(DATA_FILE, 'utf8');
-        // If file is empty, return empty array; otherwise parse it
         const parsed = data ? JSON.parse(data) : [];
         return Array.isArray(parsed) ? parsed : [];
     } catch (error) {
@@ -23,12 +22,11 @@ const loadUsers = () => {
     }
 };
 
-// Sign-Up Route
+// Register a new user
 app.post('/signup', (req, res) => {
     const { username, password, genres } = req.body;
     const users = loadUsers(); 
 
-    // Check if user already exists
     if (users.find(u => u.username === username)) {
         return res.status(400).json({ success: false, message: "Username already taken" });
     }
@@ -39,15 +37,13 @@ app.post('/signup', (req, res) => {
         password,
         genres: genres || [],
         myList: [],
-        skippedBooks: [] // Added to match your updated JSON structure
+        skippedBooks: []
     };
 
     users.push(newUser);
     
     try {
         fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
-        
-        // CRITICAL UPDATE: Send back the 'user' object so app.js can log them in
         res.json({ 
             success: true, 
             message: "Account created successfully!",
@@ -59,12 +55,10 @@ app.post('/signup', (req, res) => {
     }
 });
 
-// Login Route
+// Authenticate user login
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
-    const users = loadUsers(); // Use helper
-    
-    // This will no longer crash because 'users' is guaranteed to be an array
+    const users = loadUsers();
     const user = users.find(u => u.username === username && u.password === password);
     
     if (user) {
@@ -74,29 +68,34 @@ app.post('/login', (req, res) => {
     }
 });
 
+// Retrieve the full book catalog
 app.get('/books', (req, res) => {
     try {
-        const CATALOG_PATH = path.join(
-            __dirname,
-            'catalog-service',
-            'catalog.json'
-        );
-
+        const CATALOG_PATH = path.join(__dirname, 'catalog-service', 'catalog.json');
         const data = fs.readFileSync(CATALOG_PATH, 'utf8');
-        const books = JSON.parse(data);
-
-        res.json(books);
+        res.json(JSON.parse(data));
     } catch (error) {
         console.error("Catalog read error:", error);
         res.status(500).json({ error: "Could not load book catalog" });
     }
 });
 
+// Get profile data for a specific user
+app.get('/user/:id', (req, res) => {
+    const users = loadUsers();
+    const user = users.find(u => u.id === parseInt(req.params.id));
+    if (user) {
+        res.json(user);
+    } else {
+        res.status(404).json({ success: false, message: "User not found" });
+    }
+});
+
+// Add a book to the user's personal list
 app.post('/add-to-list', (req, res) => {
     const { userId, bookId } = req.body;
-    let users = loadUsers(); // Use helper
-
-    const userIndex = users.findIndex(u => u.id === parseInt(userId)); // Added parseInt for safety
+    let users = loadUsers();
+    const userIndex = users.findIndex(u => u.id === parseInt(userId));
 
     if (userIndex !== -1) {
         if (!users[userIndex].myList) users[userIndex].myList = [];
@@ -113,50 +112,30 @@ app.post('/add-to-list', (req, res) => {
     }
 });
 
-// Add this to server.js
-app.get('/user/:id', (req, res) => {
-    const users = loadUsers();
-    const user = users.find(u => u.id === parseInt(req.params.id));
-    if (user) {
-        res.json(user);
-    } else {
-        res.status(404).json({ message: "User not found" });
-    }
-});
+// Remove a book from the user's personal list
+app.post('/remove-from-list', (req, res) => {
+    const { userId, bookId } = req.body;
+    let users = loadUsers();
+    const user = users.find(u => u.id === parseInt(userId));
 
-app.delete('/delete-account/:id', (req, res) => {
-    let users = loadUsers(); // Use helper
-    const userId = parseInt(req.params.id);
-    
-    users = users.filter(u => u.id !== userId);
-    fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
-    
-    res.json({ success: true, message: "Account deleted" });
-});
-
-// Get a single user's data
-app.get('/user/:id', (req, res) => {
-    const users = loadUsers();
-    const user = users.find(u => u.id === parseInt(req.params.id));
     if (user) {
-        res.json(user);
+        user.myList = user.myList.filter(id => id !== bookId);
+        fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
+        res.json({ success: true, message: "Book removed." });
     } else {
         res.status(404).json({ success: false, message: "User not found" });
     }
 });
 
-//Skip Book
-
+// Mark a book as skipped so it doesn't appear again
 app.post('/skip-book', (req, res) => {
     const { userId, bookId } = req.body;
     let users = loadUsers();
     const userIndex = users.findIndex(u => u.id === parseInt(userId));
 
     if (userIndex !== -1) {
-        if (!users[userIndex].skippedBooks) {
-            users[userIndex].skippedBooks = [];
-        }
-        // Only add if not already skipped
+        if (!users[userIndex].skippedBooks) users[userIndex].skippedBooks = [];
+        
         if (!users[userIndex].skippedBooks.includes(bookId)) {
             users[userIndex].skippedBooks.push(bookId);
             fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
@@ -167,46 +146,23 @@ app.post('/skip-book', (req, res) => {
     }
 });
 
-// Remove Book from list
-app.post('/remove-from-list', (req, res) => {
-    const { userId, bookId } = req.body;
-    let users = loadUsers(); // Assuming you have a loadUsers helper
-    const user = users.find(u => u.id === parseInt(userId));
-
-    if (user) {
-        // Remove the bookId from the array
-        user.myList = user.myList.filter(id => id !== bookId);
-        
-        // Save the updated list back to users.json
-        fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
-        res.json({ success: true, message: "Book removed." });
-    } else {
-        res.status(404).json({ success: false, message: "User not found" });
-    }
-});
-
-
-// Delete Route
+// Delete a user account
 app.delete('/delete-account/:id', (req, res) => {
     try {
-        let users = loadUsers(); // Use your helper function
+        let users = loadUsers();
         const userId = parseInt(req.params.id);
+        const initialLength = users.length;
         
-        // Check if user exists
-        const userExists = users.some(u => u.id === userId);
-        if (!userExists) {
+        users = users.filter(u => u.id !== userId);
+
+        if (users.length === initialLength) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        // Filter out the user with the matching ID
-        const updatedUsers = users.filter(u => u.id !== userId);
-        
-        // Save the updated list back to users.json
-        fs.writeFileSync(DATA_FILE, JSON.stringify(updatedUsers, null, 2));
-        
+        fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
         res.json({ success: true, message: "Account deleted successfully" });
     } catch (error) {
-        console.error("Backend Delete Error:", error);
+        console.error("Delete Error:", error);
         res.status(500).json({ success: false, message: "Server error during deletion" });
     }
 });
