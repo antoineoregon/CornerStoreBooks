@@ -130,6 +130,48 @@ app.get('/user/:id', (req, res) => {
         res.status(404).json({ success: false, message: "User not found" });
     }
 });
+
+//Skip Book
+
+app.post('/skip-book', (req, res) => {
+    const { userId, bookId } = req.body;
+    let users = loadUsers();
+    const userIndex = users.findIndex(u => u.id === parseInt(userId));
+
+    if (userIndex !== -1) {
+        if (!users[userIndex].skippedBooks) {
+            users[userIndex].skippedBooks = [];
+        }
+        // Only add if not already skipped
+        if (!users[userIndex].skippedBooks.includes(bookId)) {
+            users[userIndex].skippedBooks.push(bookId);
+            fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
+        }
+        res.json({ success: true, message: "Book hidden." });
+    } else {
+        res.status(404).json({ success: false, message: "User not found" });
+    }
+});
+
+// Remove Book from list
+app.post('/remove-from-list', (req, res) => {
+    const { userId, bookId } = req.body;
+    let users = loadUsers(); // Assuming you have a loadUsers helper
+    const user = users.find(u => u.id === parseInt(userId));
+
+    if (user) {
+        // Remove the bookId from the array
+        user.myList = user.myList.filter(id => id !== bookId);
+        
+        // Save the updated list back to users.json
+        fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
+        res.json({ success: true, message: "Book removed." });
+    } else {
+        res.status(404).json({ success: false, message: "User not found" });
+    }
+});
+
+
 // Delete Route
 app.delete('/delete-account/:id', (req, res) => {
     try {

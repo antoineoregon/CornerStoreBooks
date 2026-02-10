@@ -58,35 +58,38 @@ async function signUpUser(username, password, genres) {
  */
 async function displayBooks() {
     const grid = document.querySelector('.book-grid');
+    const userId = localStorage.getItem('userId');
     if (!grid) return;
 
     try {
+        const userResp = await fetch(`http://localhost:3000/user/${userId}`);
+        const userData = await userResp.json();
+        const skippedIds = userData.skippedBooks || [];
+
         const response = await fetch('http://localhost:3000/books');
-        if (!response.ok) throw new Error("Failed to fetch books");
-        
-        const books = await response.json();
-        grid.innerHTML = ''; 
+        const allBooks = await response.json();
 
-        if (books.length === 0) {
-            grid.innerHTML = '<p>No books available in the catalog.</p>';
-            return;
-        }
+        const visibleBooks = allBooks.filter(book => !skippedIds.includes(book.id));
 
-        books.forEach(book => {
+        grid.innerHTML = '';
+        visibleBooks.forEach(book => {
             const card = document.createElement('div');
             card.className = 'book-card';
+            
+            // --- IH7: Step 2 - Adding the alternative approach (Double-Click) ---
+            card.ondblclick = () => addToList(book.id);
+            card.title = "Double-click to quick-add to My List"; 
+            // ------------------------------------------------------------------
+
             card.innerHTML = `
                 <h3>${book.title}</h3>
-                <p><strong>Author:</strong> ${book.author}</p>
-                <p><strong>Genre:</strong> ${book.genre}</p>
-                <button onclick="addToList(${book.id})">Add to My List</button>
+                <p>${book.author}</p>
+                <button onclick="addToList(${book.id})">Add</button>
+                <button onclick="skipBook(${book.id})" style="background:#ccc;">Skip</button>
             `;
             grid.appendChild(card);
         });
-    } catch (error) {
-        console.error("Error loading books:", error);
-        grid.innerHTML = '<p style="color: red;">Failed to load books. Ensure your backend server is running.</p>';
-    }
+    } catch (e) { console.error(e); }
 }
 
 /**
@@ -96,7 +99,7 @@ async function addToList(bookId) {
     const userId = localStorage.getItem('userId');
     
     if (!userId) {
-        alert("Please log in first!");
+        alert("Please log in first to start saving books!");
         window.location.href = '../index.html';
         return;
     }
@@ -110,9 +113,10 @@ async function addToList(bookId) {
 
         const data = await response.json();
         if (data.success) {
-            alert("Book added to your list!");
+            // IH#1: Clear feedback that the item was moved to their list
+            alert("Success! This book has been added to your list. View it in the 'My List' tab.");
         } else {
-            alert("Failed: " + data.message);
+            alert("Note: " + data.message);
         }
     } catch (error) {
         console.error("Add to List Error:", error);
@@ -161,6 +165,68 @@ async function displayMyList() {
     } catch (error) {
         console.error("Error loading My List:", error);
         grid.innerHTML = '<p>Error loading your saved books.</p>';
+    }
+}
+
+/**
+ *Skip Book Function
+ */
+async function skipBook(bookId) {
+    // IH#2: Warning the user of the consequence and providing a recovery path
+    const confirmSkip = confirm("Are you sure you want to skip this book? It will be hidden from your account.");
+
+    if (!confirmSkip) {
+        return; // User cancelled, do nothing
+    }
+
+    const userId = localStorage.getItem('userId');
+    try {
+        const response = await fetch('http://localhost:3000/skip-book', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: parseInt(userId), bookId: bookId })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            // Re-render the grid to remove the book
+            displayBooks(); 
+        }
+    } catch (error) {
+        console.error("Skip Error:", error);
+        alert("We couldn't hide the book right now. Please check your connection.");
+    }
+}
+
+/**
+ * Remove Book From List
+ * 
+ */
+async function removeFromList(bookId) {
+    const userId = localStorage.getItem('userId');
+    
+    // IH2: Confirmation for a clear recovery path
+    const confirmed = confirm("Are you sure you want to remove this book from your list?");
+    if (!confirmed) return;
+
+    try {
+        const response = await fetch('http://localhost:3000/remove-from-list', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: parseInt(userId), bookId: bookId })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            // Refresh the display immediately
+            displayMyList();
+        } else {
+            alert("Could not remove the book: " + data.message);
+        }
+    } catch (error) {
+        console.error("Remove error:", error);
+        // IH2: Helpful error message
+        alert("We’re having trouble connecting to the server. Please try again later.");
     }
 }
 

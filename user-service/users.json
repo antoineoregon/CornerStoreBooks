@@ -5,7 +5,10 @@
     "password": "yourname",
     "genres": [],
     "myList": [
-      2,
+      3,
+      2
+    ],
+    "skippedBooks": [
       1
     ]
   },
@@ -19,7 +22,8 @@
     ],
     "myList": [
       2
-    ]
+    ],
+    "skippedBooks": []
   },
   {
     "id": 1738882860000,
@@ -30,7 +34,8 @@
     ],
     "myList": [
       1
-    ]
+    ],
+    "skippedBooks": []
   },
   {
     "id": 31,
@@ -41,7 +46,8 @@
     ],
     "myList": [
       1
-    ]
+    ],
+    "skippedBooks": []
   },
   {
     "id": 32,
@@ -52,21 +58,24 @@
     ],
     "myList": [
       1
-    ]
+    ],
+    "skippedBooks": []
   },
   {
     "id": 1770437423096,
     "username": "jeff",
     "password": "rodgers",
     "genres": [],
-    "myList": []
+    "myList": [],
+    "skippedBooks": []
   },
   {
     "id": 1770684875402,
     "username": "myname",
     "password": "jefe",
     "genres": [],
-    "myList": []
+    "myList": [],
+    "skippedBooks": []
   },
   {
     "id": 1770685265390,
@@ -76,6 +85,7 @@
       "Sci-Fi",
       "Historical Fiction"
     ],
-    "myList": []
+    "myList": [],
+    "skippedBooks": []
   }
 ]
