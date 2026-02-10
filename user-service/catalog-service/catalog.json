@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "title": "The Great Gatsby",
+    "author": "F. Scott Fitzgerald",
+    "genre": "Classic",
+    "description": "A story of wealth and love."
+  },
+  {
+    "id": 2,
+    "title": "Dune",
+    "author": "Frank Herbert",
+    "genre": "Sci-Fi",
+    "description": "A desert planet adventure."
+  },
+  {
+    "id": 3,
+    "title": "Razorblade Tears",
+    "author": "S.A. Crosby",
+    "genre": "Thriller",
+    "description": "A father duo revenge story."
+  }
+]

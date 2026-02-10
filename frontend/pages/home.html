@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - CornerStoreBooks</title>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>CornerStoreBooks</h1>
+        <nav>
+            <a href="mylist.html">My List</a>
+            <a href="settings.html">Settings</a>
+            <button type="button" onclick="logout()">Logout</button>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Book Reccomendations</h2>
+        <div class="book-grid" aria-live="polite">
+            <p>Loading books...</p>
+        </div>
+    </main>
+
+    <noscript>
+        <p>This application requires JavaScript to function properly.</p>
+    </noscript>
+
+    <!-- App logic -->
+    <script src="../assets/js/app.js"></script>
+
+    <!-- Page-specific logic -->
+    <script>
+        // Simple auth guard
+        if (!localStorage.getItem('userId')) {
+            window.location.replace('../index.html');
+        }
+
+        function logout() {
+            localStorage.removeItem('userId');
+            window.location.replace('../index.html');
+        }
+    </script>
+</body>
+</html>

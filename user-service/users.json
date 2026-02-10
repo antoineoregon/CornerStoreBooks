@@ -1,0 +1,81 @@
+[
+  {
+    "id": 1707255000000,
+    "username": "yourname",
+    "password": "yourname",
+    "genres": [],
+    "myList": [
+      2,
+      1
+    ]
+  },
+  {
+    "id": 1738882800000,
+    "username": "bookworm99",
+    "password": "password123",
+    "genres": [
+      "Sci-Fi",
+      "Classic"
+    ],
+    "myList": [
+      2
+    ]
+  },
+  {
+    "id": 1738882860000,
+    "username": "alice_reads",
+    "password": "securepass",
+    "genres": [
+      "Mystery"
+    ],
+    "myList": [
+      1
+    ]
+  },
+  {
+    "id": 31,
+    "username": "test",
+    "password": "test",
+    "genres": [
+      "Fantasy"
+    ],
+    "myList": [
+      1
+    ]
+  },
+  {
+    "id": 32,
+    "username": "test1",
+    "password": "test1",
+    "genres": [
+      "Fantasy"
+    ],
+    "myList": [
+      1
+    ]
+  },
+  {
+    "id": 1770437423096,
+    "username": "jeff",
+    "password": "rodgers",
+    "genres": [],
+    "myList": []
+  },
+  {
+    "id": 1770684875402,
+    "username": "myname",
+    "password": "jefe",
+    "genres": [],
+    "myList": []
+  },
+  {
+    "id": 1770685265390,
+    "username": "allen",
+    "password": "iverson",
+    "genres": [
+      "Sci-Fi",
+      "Historical Fiction"
+    ],
+    "myList": []
+  }
+]

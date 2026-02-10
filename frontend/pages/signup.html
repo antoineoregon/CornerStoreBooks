@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up - CornerStoreBooks</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="login-container"> 
+        <h2>Create an Account</h2>
+        <input type="text" id="signup-username" placeholder="Username" required>
+        <input type="password" id="signup-password" placeholder="Password" required>
+
+        <div class="genre-selection">
+            <p>Select your favorite genres:</p>
+            <label><input type="checkbox" name="genre" value="Sci-Fi"> Sci-Fi</label><br>
+            <label><input type="checkbox" name="genre" value="Classic"> Classic</label><br>
+            <label><input type="checkbox" name="genre" value="Fantasy"> Fantasy</label><br>
+            <label><input type="checkbox" name="genre" value="Thriller"> Thriller</label><br>
+            <label><input type="checkbox" name="genre" value="Romance"> Romance</label><br>
+            <label><input type="checkbox" name="genre" value="Western"> Western</label><br>
+            <label><input type="checkbox" name="genre" value="Historical Fiction"> Historical Fiction</label><br>
+            <label><input type="checkbox" name="genre" value="Mystery"> Mystery</label>
+        </div>
+        
+        <div class="button-group">
+            <button onclick="handleSignUp()">Sign Up</button>
+            <button onclick="window.location.href='login.html'" style="background-color: #6c757d; color: white;">Cancel</button>
+        </div>
+
+        <p>Already have an account? <a href="login.html">Login here</a></p>
+    </div>
+
+    <script src="../assets/js/app.js"></script>
+    <script>
+        function handleSignUp() {
+            const user = document.getElementById('signup-username').value;
+            const pass = document.getElementById('signup-password').value;
+            
+            // Collect all checked genres into an array
+            const genreCheckboxes = document.querySelectorAll('input[name="genre"]:checked');
+            const selectedGenres = Array.from(genreCheckboxes).map(cb => cb.value);
+
+            // Now passing the actual array instead of an empty one []
+            signUpUser(user, pass, selectedGenres); 
+        }
+    </script>
+</body>
+</html>
