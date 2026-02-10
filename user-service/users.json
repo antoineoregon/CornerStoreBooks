@@ -87,5 +87,51 @@
     ],
     "myList": [],
     "skippedBooks": []
+  },
+  {
+    "id": 1770697491929,
+    "username": "test125",
+    "password": "fresh",
+    "genres": [
+      "Fantasy",
+      "Thriller"
+    ],
+    "myList": []
+  },
+  {
+    "id": 1770697515015,
+    "username": "hello",
+    "password": "what",
+    "genres": [
+      "Classic",
+      "Fantasy"
+    ],
+    "myList": []
+  },
+  {
+    "id": 1770697751764,
+    "username": "peanut",
+    "password": "buttter",
+    "genres": [
+      "Classic"
+    ],
+    "myList": []
+  },
+  {
+    "id": 1770697782151,
+    "username": "",
+    "password": "",
+    "genres": [],
+    "myList": []
+  },
+  {
+    "id": 1770698083066,
+    "username": "wow",
+    "password": "wow",
+    "genres": [
+      "Sci-Fi"
+    ],
+    "myList": [],
+    "skippedBooks": []
   }
 ]

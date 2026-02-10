@@ -26,8 +26,9 @@ const loadUsers = () => {
 // Sign-Up Route
 app.post('/signup', (req, res) => {
     const { username, password, genres } = req.body;
-    const users = loadUsers(); // Use helper
+    const users = loadUsers(); 
 
+    // Check if user already exists
     if (users.find(u => u.username === username)) {
         return res.status(400).json({ success: false, message: "Username already taken" });
     }
@@ -37,12 +38,25 @@ app.post('/signup', (req, res) => {
         username,
         password,
         genres: genres || [],
-        myList: [] // Initialize list here
+        myList: [],
+        skippedBooks: [] // Added to match your updated JSON structure
     };
 
     users.push(newUser);
-    fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
-    res.json({ success: true, message: "Account created successfully!" });
+    
+    try {
+        fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
+        
+        // CRITICAL UPDATE: Send back the 'user' object so app.js can log them in
+        res.json({ 
+            success: true, 
+            message: "Account created successfully!",
+            user: newUser 
+        });
+    } catch (error) {
+        console.error("File save error:", error);
+        res.status(500).json({ success: false, message: "Server error saving account." });
+    }
 });
 
 // Login Route

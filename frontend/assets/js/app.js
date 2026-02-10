@@ -42,14 +42,30 @@ async function signUpUser(username, password, genres) {
 
         const data = await response.json();
 
-        if (data.success) {
-            alert("Account created! You can now log in.");
-            window.location.href = '../index.html'; 
+        if (data.success && data.user) {
+            // 1. Log the user in automatically
+            localStorage.setItem('userId', data.user.id);
+            localStorage.setItem('username', data.user.username);
+
+            alert(`Welcome, ${data.user.username}! Your account has been created.`);
+
+            // 2. Intelligent Redirect Logic (IH4 Consistency)
+            // This checks if you are inside the /pages/ folder or at the root
+            const path = window.location.pathname;
+            if (path.includes('index.html') || path === '/' || !path.includes('/pages/')) {
+                window.location.href = 'pages/home.html';
+            } else {
+                // If already in /pages/signup.html, just go to home.html
+                window.location.href = 'home.html';
+            }
         } else {
-            alert("Error: " + data.message);
+            // IH2: Descriptive error message
+            alert("Sign up failed: " + (data.message || "Please check your details and try again."));
         }
     } catch (error) {
-        console.error("Signup Error:", error);
+        console.error("Sign up error:", error);
+        // IH2: Helpful recovery path
+        alert("Connection error. Is your server running on port 3000?");
     }
 }
 
