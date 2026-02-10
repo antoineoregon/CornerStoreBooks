@@ -78,7 +78,7 @@ async function displayBooks() {
             
             // --- IH7: Step 2 - Adding the alternative approach (Double-Click) ---
             card.ondblclick = () => addToList(book.id);
-            card.title = "Double-click to quick-add to My List"; 
+            
             // ------------------------------------------------------------------
 
             card.innerHTML = `
