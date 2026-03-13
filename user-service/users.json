@@ -42,12 +42,20 @@
     "username": "test",
     "password": "test",
     "genres": [
+      "Sci-Fi",
       "Fantasy"
     ],
     "myList": [
+      3,
+      2
+    ],
+    "skippedBooks": [
       1
     ],
-    "skippedBooks": []
+    "interest_tags": [
+      "Sci-Fi",
+      "Fantasy"
+    ]
   },
   {
     "id": 32,

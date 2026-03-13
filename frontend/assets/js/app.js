@@ -68,7 +68,8 @@ async function signUpUser(username, password, genres) {
  * Fetch and display the book catalog, excluding skipped books
  */
 async function displayBooks() {
-    const grid = document.querySelector('.book-grid');
+    // Target ONLY the grid inside #catalog-section
+    const grid = document.querySelector('#catalog-section .book-grid');
     const userId = localStorage.getItem('userId');
     if (!grid) return;
 
@@ -80,16 +81,14 @@ async function displayBooks() {
         const response = await fetch('http://localhost:3000/books');
         const allBooks = await response.json();
 
+        // Filter out skipped books
         const visibleBooks = allBooks.filter(book => !skippedIds.includes(book.id));
 
-        grid.innerHTML = '';
+        grid.innerHTML = ''; // This will now ONLY clear the catalog grid
         visibleBooks.forEach(book => {
             const card = document.createElement('div');
             card.className = 'book-card';
-            
-            // Allow double-click as a shortcut to add to list
             card.ondblclick = () => addToList(book.id);
-
             card.innerHTML = `
                 <h3>${book.title}</h3>
                 <p>${book.author}</p>
@@ -226,6 +225,142 @@ async function removeFromList(bookId) {
 }
 
 /**
+ * Fetch and display recommended books specifically
+ */
+async function displayRecommendations() {
+    const grid = document.getElementById('recommendations-grid'); 
+    const userId = localStorage.getItem('userId');
+    
+    if (!grid || !userId) return;
+
+    try {
+        const response = await fetch(`http://localhost:3005/recommendations/${userId}`);
+        const data = await response.json();
+
+        // Safety Check: If data is an error object, it's not an array
+        if (!Array.isArray(data)) {
+            console.error("Server returned an error instead of a list:", data);
+            throw new Error(data.error || "Server Error");
+        }
+
+        const recommendedBooks = data;
+
+        // Inside displayRecommendations() in app.js
+// ... after recommendedBooks = data;
+
+        if (recommendedBooks.length > 0) {
+            const itemIds = recommendedBooks.map(b => b.id);
+            
+            fetch('http://localhost:3008/log', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'RECOMMENDATION_SERVED',
+                    userId: userId,
+                    data: { itemIds: itemIds }
+                })
+            }).catch(err => console.error("Audit logging failed for recommendation:", err));
+        }
+
+        if (recommendedBooks.length === 0) {
+            grid.innerHTML = '<p>No specific recommendations yet. Try adding more genres to your profile!</p>';
+            return;
+        }
+
+        grid.innerHTML = ''; 
+        recommendedBooks.forEach(book => {
+            const card = document.createElement('div');
+            card.className = 'book-card recommended-style';
+            card.innerHTML = `
+                <h3>${book.title}</h3>
+                <p><strong>${book.author}</strong></p>
+                <p><small>${book.genre}</small></p>
+                <button onclick="addToList(${book.id})">Add</button>
+            `;
+            grid.appendChild(card);
+        });
+    } catch (e) {
+        console.error("Could not load recommendations:", e);
+        grid.innerHTML = '<p>Personalized feed is currently unavailable.</p>';
+    }
+}
+
+async function displayDiscoveryTags() {
+    const userId = localStorage.getItem('userId');
+    const container = document.getElementById('discovery-tags-container');
+    if (!container || !userId) return;
+
+    try {
+        const response = await fetch(`http://localhost:3006/tags/discovery/${userId}`);
+        const tags = await response.json();
+        
+        container.innerHTML = '<h4>Explore New Genres:</h4> ' + 
+            tags.map(t => `<span class="tag-badge">${t}</span>`).join(' ');
+    } catch (e) {
+        console.error("Discovery tags failed", e);
+    }
+}
+
+// Example of how to call your new service from the frontend
+async function saveUserPreferences(userId, selectedTags) {
+    try {
+        const response = await fetch('http://localhost:3007/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, tags: selectedTags })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            alert("Preferences saved successfully!");
+            // Optionally refresh the view or UI state here
+        }
+    } catch (err) {
+        console.error("Update failed:", err);
+    }
+}
+
+async function loadGenreSettings() {
+    const container = document.getElementById('genre-checkboxes');
+    const userId = localStorage.getItem('userId');
+    
+    // 1. Get all available genres (from your Tag Service)
+    const allResp = await fetch('http://localhost:3006/all-genres');
+    const allGenres = await allResp.json();
+    
+    // 2. Get user's current genres (from your User Service)
+    const userResp = await fetch(`http://localhost:3000/user/${userId}`);
+    const userData = await userResp.json();
+    const current = userData.interest_tags || [];
+
+    // 3. Render checkboxes, pre-checking the ones the user already has
+    container.innerHTML = allGenres.map(genre => `
+        <label style="display: block;">
+            <input type="checkbox" value="${genre}" ${current.includes(genre) ? 'checked' : ''}> 
+            ${genre}
+        </label>
+    `).join('');
+}
+
+/**
+ * Reads the checkboxes and calls the save service
+ */
+async function saveMyGenres() {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        alert("User session expired. Please log in again.");
+        return;
+    }
+
+    // Find all checked boxes in the settings section
+    const checkboxes = document.querySelectorAll('#genre-checkboxes input:checked');
+    const selectedTags = Array.from(checkboxes).map(cb => cb.value);
+
+    // Pass the data to your existing save helper
+    await saveUserPreferences(parseInt(userId), selectedTags);
+}
+
+/**
  * Permanently delete the user account and clear local storage
  */
 async function deleteAccount() {
@@ -262,11 +397,40 @@ async function deleteAccount() {
 window.onload = () => {
     const path = window.location.pathname.toLowerCase();
     if (path.includes('home')) {
+        displayRecommendations();
         displayBooks();
     } else if (path.includes('mylist')) {
         displayMyList();
+    } else if (path.includes('settings')) {
+        loadGenreSettings(); // Call this when settings.html loads
     }
 };
+
+const myButton = document.getElementById('my-button');
+if (myButton) {
+    // Added 'async' here
+    myButton.addEventListener('click', async () => {
+        const container = document.getElementById('discovery-tags-container');
+        const userId = localStorage.getItem('userId');
+        
+        container.innerHTML = '<p>Loading new genres...</p>';
+        
+        try {
+            const response = await fetch(`http://localhost:3006/tags/discovery/${userId}`);
+            const tags = await response.json();
+            
+            if (tags.length === 0) {
+                container.innerHTML = '<p>You have discovered all available genres!</p>';
+            } else {
+                const randomTag = tags[Math.floor(Math.random() * tags.length)];
+                container.innerHTML = '<h4>Suggested Genre to Explore:</h4>' + 
+                    `<span class="tag-badge">${randomTag}</span>`;
+            }
+        } catch (err) {
+            container.innerHTML = '<p>Could not load discovery tags.</p>';
+        }
+    });
+}
 
 /**
  * Clear session data and redirect to login

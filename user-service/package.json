@@ -5,7 +5,11 @@
   "scripts": {
     "start": "node server.js",
     "frontend": "npx serve -l 5000 ../frontend",
-    "dev": "concurrently \"npm run start\" \"npm run frontend\""
+    "recommendations": "node ../personalized_feed/server.js",
+    "tags": "node ../tag_service/server.js",
+    "preferences": "node ../update_preferences/server.js",
+    "audit": "node ../audit_service/server.js",
+    "dev": "concurrently \"npm run start\" \"npm run frontend\" \"npm run recommendations\" \"npm run tags\" \"npm run preferences\" \"npm run audit\""
   },
   "dependencies": {
     "cors": "^2.8.6",

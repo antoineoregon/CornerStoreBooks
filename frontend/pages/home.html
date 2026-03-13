@@ -18,15 +18,23 @@
     </header>
 
     <main>
-        <h2>Book Reccomendations</h2>
-    
-        <div class="info-banner" style="background-color: #e7f3fe; border-left: 6px solid #2196F3; padding: 10px; margin-bottom: 20px;">
-            <p>Click "Add to My List" on any book to save it to your personal collection. You can view and manage these in your <a href="mylist.html">My List</a> page.</p>
-        </div>
+        <section id="recommendations-section">
+            <h2>Recommended for You</h2>
+            <div id="recommendations-grid" class="book-grid"></div>
+        </section>
 
-        <div class="book-grid" aria-live="polite">
-            <p>Loading books...</p>
-        </div>
+        <section id="discovery-section" style="text-align: center; margin: 40px 0;">
+            <h2>Find Something New</h2>
+            <button id="show-discovery-btn">Discover New Genres</button>
+            <div id="discovery-tags-container" style="margin-top: 20px;"></div>
+        </section>
+
+        <hr style="margin: 40px 0; border: 0; border-top: 1px solid #eee;">
+
+        <section id="catalog-section">
+            <h2>All Books</h2>
+            <div class="book-grid"></div>
+        </section>
     </main>
 
     <noscript>

@@ -1,0 +1,45 @@
+[
+  {
+    "timestamp": "2026-03-13T02:33:33.553Z",
+    "type": "RECOMMENDATION_SERVED",
+    "userId": "31",
+    "data": {
+      "itemIds": [
+        2,
+        3
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-03-13T02:34:01.481Z",
+    "type": "PREFERENCE_CHANGE",
+    "userId": 31,
+    "data": {
+      "old_tags": [
+        "Sci-Fi",
+        "Fantasy"
+      ],
+      "new_tags": [
+        "Classic",
+        "Sci-Fi",
+        "Fantasy"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-03-13T02:34:06.569Z",
+    "type": "PREFERENCE_CHANGE",
+    "userId": 31,
+    "data": {
+      "old_tags": [
+        "Classic",
+        "Sci-Fi",
+        "Fantasy"
+      ],
+      "new_tags": [
+        "Sci-Fi",
+        "Fantasy"
+      ]
+    }
+  }
+]
