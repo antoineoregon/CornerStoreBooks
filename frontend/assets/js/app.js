@@ -255,7 +255,7 @@ async function displayRecommendations() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    type: 'RECOMMENDATION_SERVED',
+                    type: 'Reccomendation_Provided',
                     userId: userId,
                     data: { itemIds: itemIds }
                 })
@@ -406,28 +406,38 @@ window.onload = () => {
     }
 };
 
-const myButton = document.getElementById('my-button');
+const myButton = document.getElementById('show-discovery-btn');
+
 if (myButton) {
-    // Added 'async' here
     myButton.addEventListener('click', async () => {
         const container = document.getElementById('discovery-tags-container');
         const userId = localStorage.getItem('userId');
         
-        container.innerHTML = '<p>Loading new genres...</p>';
+        // 1. Reset container
+        container.innerHTML = '<p>Loading...</p>';
         
         try {
             const response = await fetch(`http://localhost:3006/tags/discovery/${userId}`);
             const tags = await response.json();
             
-            if (tags.length === 0) {
+            console.log("Data successfully fetched:", tags);
+
+            if (!Array.isArray(tags) || tags.length === 0) {
                 container.innerHTML = '<p>You have discovered all available genres!</p>';
             } else {
-                const randomTag = tags[Math.floor(Math.random() * tags.length)];
+                // 2. Pick the random tag
+                const randomIndex = Math.floor(Math.random() * tags.length);
+                const randomTag = tags[randomIndex];
+                
+                // 3. Update the UI - Using a simpler string concatenation to avoid backtick issues
                 container.innerHTML = '<h4>Suggested Genre to Explore:</h4>' + 
-                    `<span class="tag-badge">${randomTag}</span>`;
+                                     '<div class="tag-badge" style="display:inline-block; padding:10px; background:#e0e0e0; border-radius:5px; margin-top:10px;">' + 
+                                     randomTag + 
+                                     '</div>';
             }
         } catch (err) {
-            container.innerHTML = '<p>Could not load discovery tags.</p>';
+            console.error("Discovery Feature Error:", err);
+            container.innerHTML = '<p>Error: Could not display tags. Check console.</p>';
         }
     });
 }

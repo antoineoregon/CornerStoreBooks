@@ -20,8 +20,43 @@
     "genre": "Fantasy",
     "description": "The pirate's life for me!"
   },
+    {
+    "id": 4,
+    "title": "The Rage of Dragons",
+    "author": "Evan Winters",
+    "genre": "Fantasy",
+    "description": "Revenge tale with Dragons!"
+  },
+   {
+    "id": 5,
+    "title": "Anansi Boyz",
+    "author": "Neil Gaiman",
+    "genre": "Fantasy",
+    "description": "Fun, quirky tale of two brothers."
+  },
+   {
+    "id": 6,
+    "title": "Dungeon Crawler Carl",
+    "author": "Matt Dinniman",
+    "genre": "Sci-Fi",
+    "description": "LitRPG"
+  },
+   {
+    "id": 7,
+    "title": "A Court of Thorns and Roses",
+    "author": "Sarah J. Maas",
+    "genre": "Romantasy",
+    "description": "Steamy book about fae and faeries"
+  },
+   {
+    "id": 8,
+    "title": "Leviathan Wakes",
+    "author": "James S. A. Corey",
+    "genre": "Sci-Fi",
+    "description": "Space Exploration"
+  },
   {
-    "id": 3,
+    "id": 9,
     "title": "Razorblade Tears",
     "author": "S.A. Crosby",
     "genre": "Thriller",

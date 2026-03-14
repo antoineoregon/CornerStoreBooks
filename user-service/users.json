@@ -43,7 +43,8 @@
     "password": "test",
     "genres": [
       "Sci-Fi",
-      "Fantasy"
+      "Fantasy",
+      "Thriller"
     ],
     "myList": [
       3,
@@ -54,7 +55,8 @@
     ],
     "interest_tags": [
       "Sci-Fi",
-      "Fantasy"
+      "Fantasy",
+      "Thriller"
     ]
   },
   {
@@ -62,12 +64,19 @@
     "username": "test1",
     "password": "test1",
     "genres": [
-      "Fantasy"
+      "Sci-Fi",
+      "Fantasy",
+      "Romantasy"
     ],
     "myList": [
       1
     ],
-    "skippedBooks": []
+    "skippedBooks": [],
+    "interest_tags": [
+      "Sci-Fi",
+      "Fantasy",
+      "Romantasy"
+    ]
   },
   {
     "id": 1770437423096,
